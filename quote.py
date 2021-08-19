@@ -174,7 +174,7 @@ class QuotesMod(loader.Module):
             req = await utils.run_sync(
                 requests.post,
                 "https://quotes.mishase.dev/create",
-                data={"data": json.dumps(data), "moduleBuild": ""},
+                data={"data": json.dumps(data), "moduleBuild": None},
                 files=files,
                 timeout=100
             )
