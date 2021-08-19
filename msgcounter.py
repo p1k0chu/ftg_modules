@@ -6,7 +6,7 @@ class MsgCountMod(loader.Module):
 
     strings = {
         "name": "MsgCount",
-        "processing": "Извиняюсь...",
+        "processing": "Извиняюсь... (это будет ОЧЕНЬ долго)",
         "no_reply": "Нужно ответить на сообщение"
     }
 
