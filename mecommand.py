@@ -12,10 +12,10 @@ class MeCommandMod(loader.Module):
 
     @loader.unrestricted
     @loader.ratelimit
-    async def mecmd(self, message):
-        """Использование: .me @<username> <text> or <id> <text>"""
+    async def notmecmd(self, message):
+        """.notme @<username> <text> or <id> <text> -- от чужого имени"""
         args = utils.get_args(message)
-        #await utils.answer(message, str(args))
+        #await utils.answer(message, str(args)) # for debug
         if len(args) < 2:
             await utils.answer(message, self.strings("args_err", message))
             return
@@ -33,3 +33,21 @@ class MeCommandMod(loader.Module):
         if user.last_name:
             fullname += " " + user.last_name
         await utils.answer(message, self.strings("output", message).format(uid=user.id, txt=" ".join(args[1:]), fullname=fullname))
+
+    @loader.unrestricted
+    @loader.ratelimit
+    async def mecmd(self, message):
+        """.me <text> -- от своего имени"""
+
+        args = utils.get_args(message)
+        
+        if len(args) < 1:
+            await utils.answer(message, self.strings("args_err", message))
+            return
+        
+        me = await self.client.get_me()
+        fullname = me.first_name
+        if me.last_name:
+            fullname += me.last_name
+        
+        await utils.answer(message, self.strings("output", message).format(uid=me.id, txt=" ".join(args), fullname=fullname))
