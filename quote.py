@@ -43,14 +43,14 @@ class QuotesMod(loader.Module):
         "quote_limit_reached": ("The maximum number "
                                     "of messages in "
                                     "multiquote - {}."),
-        "fq_incorrect_args": ("<b>Не корректные аргументы.</b> \"@$username (ID)"
-                              "$text\" or \"$reply $text\""),
+        "fq_incorrect_args": ("<b>Не коректні аргументи!</b> \"@$username (ID)"
+                              "$text\" ибо \"$reply $text\""),
         "updating": "<b>Updating...</b>",
         "update_error": "<b>Update error</b>",
-        "processing": "<b>Извиняюсь...</b>",
-        "unreachable_error": "<b>API хост не доступен. Будешь без цитат.</b>",
-        "server_error": "<b>Ошибка API :)</b>",
-        "no_reply": "<b>Отвечать на сообщение!</b>",
+        "processing": "<b>Зачекайте...</b>",
+        "unreachable_error": "<b>API хост не доступний.</b>",
+        "server_error": "<b>Помилка API :)</b>",
+        "no_reply": "<b>Реплай на якесь повідомлення!</b>",
         "creator": "Owner",
         "admin": "Admin",
         "channel": "Channel",
@@ -108,6 +108,7 @@ class QuotesMod(loader.Module):
     @loader.unrestricted
     @loader.ratelimit
     async def mquotecmd(self, message):
+        """.mquote <reply> - quote a message"""
         await self.quotecmd(message)
 
     @loader.unrestricted
@@ -411,16 +412,15 @@ class QuotesMod(loader.Module):
             "backgroundColor": self.config["BACKGROUND_COLOR"],
         }
         files = []
+        f = []
         for file in media_files.keys():
+            f.append(open(media_files[file], "rb"))
             files.append(
                 (
                     "files",
                     (
                         file,
-                        open(
-                            media_files[file],
-                            "rb"
-                        ),
+                        f[-1],
                         "image/jpg"
                     )
                 )
@@ -445,6 +445,8 @@ class QuotesMod(loader.Module):
                 timeout=100
             )
         except (requests.ConnectionError, requests.exceptions.Timeout):
+            for i in f:
+                i.close()
             await clean_files()
             return await utils.answer(
                 mmm,
@@ -452,8 +454,10 @@ class QuotesMod(loader.Module):
             )
         except:
             pass
+        for i in f:
+            i.close()
         await clean_files()
-        
+
         image = io.BytesIO()
         image.name = "quote.webp"
         try:
@@ -525,11 +529,13 @@ class QuotesMod(loader.Module):
                 "adminTitle": ' ',
             }
         }
+        
         if avatar:
             msg['author']['picture'] = {
                 'file': f'@av{str(user.id).lstrip("-")}'}
+            f = open(avatar, "rb")
             files.append(("files", (
-                f'@av{str(user.id if not str(user).isdigit() else user).lstrip("-")}', open(avatar, "rb"),
+                f'@av{str(user.id if not str(user).isdigit() else user).lstrip("-")}', f,
                 "image/jpg")))
         else:
             files.append(("files", ("file", bytearray(), "text/text")))
@@ -555,13 +561,15 @@ class QuotesMod(loader.Module):
                 timeout=100
             )
         except (requests.ConnectionError, requests.exceptions.Timeout):
+            f.close()
             await clean_files()
             return await utils.answer(
                 mmm,
                 self.strings("unreachable_error", message)
             )
+        f.close()
         await clean_files()
-        
+
         image = io.BytesIO()
         image.name = "fquote.webp"
         try:
@@ -579,7 +587,10 @@ class QuotesMod(loader.Module):
 
 
 async def clean_files():
-    return os.system("rm -rf mishase_cache/*")
+    if os.name == "posix":
+        return os.system("rm -rf mishase_cache/*")
+    elif os.name == "nt":
+        return os.system(r"del /Q .\mishase_cache\*")
 
 async def check_media(client, reply, media_files: dict, is_reply: bool):
     allowed_exts = [".png", ".webp", ".jpg", ".jpeg", ".tgs", ".mp4"]
