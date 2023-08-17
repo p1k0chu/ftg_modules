@@ -47,7 +47,7 @@ class ChatGptMod(loader.Module):
                 return
         
         try:
-            r = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=[{"role": "system", "content": "You are a helpful assistant."}, 
+            r = await openai.ChatCompletion.acreate(model="gpt-3.5-turbo", messages=[{"role": "system", "content": "You are a helpful assistant."}, 
                                                                           {"role": "user", "content": text}],
                                              n=1) #if doesn't work delete 'n' argument
         except AuthenticationError:
