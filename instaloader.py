@@ -3,7 +3,7 @@ import telethon
 import os
 import instaloader
 import re
-import logging
+import urllib
 
 @loader.tds
 class InstaLoaderMod(loader.Module):
@@ -46,6 +46,8 @@ class InstaLoaderMod(loader.Module):
             if not silent:
                 await utils.answer(message, self.strings("args_err", message))
             return
+        
+        text = urllib.parse.quote_plus(text)
         
         # convert url to shortcode
         if re.search("http.://", text):
