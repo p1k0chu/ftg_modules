@@ -2,6 +2,7 @@ from .. import loader, utils
 import telethon
 import os
 import instaloader
+import re
 
 @loader.tds
 class InstaLoaderMod(loader.Module):
@@ -14,6 +15,7 @@ class InstaLoaderMod(loader.Module):
                 "loader_not_loading": "Something is broken. Pls contact author and send him link to the Instagram post caused this problem (or fix it yourself xd)",
                 "processing": "<b>Processing...</b>",
                 "uploading": "<b>Uploading files...</b>"}
+    
     
     def __init__(self):
         self.il = instaloader.Instaloader(download_video_thumbnails = False,
@@ -37,21 +39,23 @@ class InstaLoaderMod(loader.Module):
         if silent:
             await message.delete()
         
-        args = utils.get_args(message)
+        text = utils.get_args_raw(message)
         
         #there should be only one argument
-        if len(args) != 1:
+        if not text:
             if not silent:
                 await utils.answer(message, self.strings("args_err", message))
             return
         
-        #TODO url parsing
+        # convert url to shortcode
+        if re.match("http.://", text):
+            text = text.split("/")[4]
         
         #let user know you handle command
         if not silent:
             await utils.answer(message, self.strings("processing", message))
         
-        post = instaloader.Post.from_shortcode(self.il.context, args[0])
+        post = instaloader.Post.from_shortcode(self.il.context, text)
         
         #let user know you downloading files
         if not silent:
@@ -70,7 +74,10 @@ class InstaLoaderMod(loader.Module):
             if not silent:
                 await utils.answer(message, self.strings("uploading", message))
             #upload files
-            await self.client.send_file(message.to_id, resources, reply_to=message.reply_to.reply_to_msg_id)
+            if message.reply_to == None:
+                await self.client.send_file(message.to_id, resources)
+            else:
+                await self.client.send_file(message.to_id, resources, reply_to=message.reply_to.reply_to_msg_id)
             #delete original message
             if not silent: # if silent = True message deleted already
                 await message.delete()
