@@ -6,8 +6,9 @@ class MsgCountMod(loader.Module):
 
     strings = {
         "name": "MsgCount",
-        "processing": "Извиняюсь... (это будет ОЧЕНЬ долго)",
-        "no_reply": "Нужно ответить на сообщение"
+        "processing": "Рахую повідомлення...",
+        "no_reply": "Потрібно відповісти на повідомлення",
+        "output": "Кількість повідомлень: {}"
     }
 
     async def client_ready(self, client, db):
@@ -16,17 +17,12 @@ class MsgCountMod(loader.Module):
     @loader.unrestricted
     @loader.ratelimit
     async def msgcountcmd(self, message):
-        """.msgcount <reply> - count of message from user"""
-        mmm = await utils.answer(
-            message,
-            self.strings("processing", message))
+        """.msgcount <reply> - count messages from user"""
+        await utils.answer(message, self.strings("processing", message))
         
         reply = await message.get_reply_message()
         if not reply:
-            return await utils.answer(
-                mmm,
-                self.strings("no_reply", message)
-            )
+            await utils.answer(message, self.strings("no_reply", message))
         
         c = 0
         async for msg in message.client.iter_messages(
@@ -34,7 +30,4 @@ class MsgCountMod(loader.Module):
             if msg.from_id == reply.from_id:
                 c += 1
         
-        return await utils.answer(
-            mmm,
-            f"Messages: {c}"
-        )
+        await utils.answer(message, self.strings("output", message).format(c))
