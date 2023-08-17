@@ -2,6 +2,7 @@ from .. import loader, utils
 import telethon
 import os
 import instaloader
+import re
 
 @loader.tds
 class InstaLoaderMod(loader.Module):
@@ -37,23 +38,24 @@ class InstaLoaderMod(loader.Module):
         if silent:
             await message.delete()
         
-        args = utils.get_args(message)
+        text = utils.get_args_raw(message)
         
         #there should be only one argument
-        if len(args) != 1:
+        if not text:
             if not silent:
                 await utils.answer(message, self.strings("args_err", message))
             return
         
-        #TODO url parsing
+        if re.match("http.://", text):
+            text = text.split("/")[4]
         
-        #let user know you handle command
+        #let the user know you handling command
         if not silent:
             await utils.answer(message, self.strings("processing", message))
         
-        post = instaloader.Post.from_shortcode(self.il.context, args[0])
+        post = instaloader.Post.from_shortcode(self.il.context, text)
         
-        #let user know you downloading files
+        #let the user know you downloading files
         if not silent:
             await utils.answer(message, self.strings("downloading", message))
         #clean cache folder in case something left
@@ -70,7 +72,10 @@ class InstaLoaderMod(loader.Module):
             if not silent:
                 await utils.answer(message, self.strings("uploading", message))
             #upload files
-            await self.client.send_file(message.to_id, resources)
+            if message.reply_to:
+                await self.client.send_file(message.to_id, resources, reply_to=message.reply_to.reply_to_msg_id)
+            else:
+                await self.client.send_file(message.to_id, resources)
             #delete original message
             if not silent: # if silent = True message deleted already
                 await message.delete()
