@@ -63,6 +63,8 @@ class InstaLoaderMod(loader.Module):
         self.il.download_post(post, "instaloader_cache")
         #make list of all media files matching my_filer(file_name)
         resources = list(filter(my_filter, ["instaloader_cache/"+i for i in os.listdir("instaloader_cache")]))
+        with open("instaloader_cache/"+txt_filter(os.listdir("instaloader_cache"))) as f:
+            caption = f.read()
         
         if len(resources) >= 1:
             #let user know you downloaded everithing and now uploading
@@ -70,7 +72,7 @@ class InstaLoaderMod(loader.Module):
             if not silent:
                 await utils.answer(message, self.strings("uploading", message))
             #upload files
-            await self.client.send_file(message.to_id, resources, reply_to=message.id)
+            await self.client.send_file(message.to_id, resources, reply_to=message.id, message=caption)
             #delete original message
             if not silent: # if silent = True message deleted already
                 await message.delete()
@@ -91,5 +93,10 @@ async def clean_files():
     elif os.name == "nt":
         return os.system(r"del /Q .\instaloader_cache\*")
 
-def my_filter(x):
+def media_filter(x):
     return not (x.endswith(".txt") or x.endswith(".xz") or x.endswith(".json"))
+
+def txt_filter(x):
+    for i in x:
+        if i.endswith(".txt"):
+            return i
