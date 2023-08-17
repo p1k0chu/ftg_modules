@@ -70,7 +70,7 @@ class InstaLoaderMod(loader.Module):
             if not silent:
                 await utils.answer(message, self.strings("uploading", message))
             #upload files
-            await self.client.send_file(message.to_id, resources)
+            await self.client.send_file(message.to_id, resources, reply_to=message.id)
             #delete original message
             if not silent: # if silent = True message deleted already
                 await message.delete()
