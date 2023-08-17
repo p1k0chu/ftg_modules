@@ -15,6 +15,6 @@ class TestMod(loader.Module):
     async def printmessagecmd(self, message):
         return await utils.answer(
             message,
-            str(message.reply_to.__dict__)
+            str(message.__dict__)
         )
         
