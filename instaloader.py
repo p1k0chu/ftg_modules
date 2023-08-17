@@ -65,6 +65,7 @@ class InstaLoaderMod(loader.Module):
         resources = list(filter(media_filter, ["instaloader_cache/"+i for i in os.listdir("instaloader_cache")]))
         with open("instaloader_cache/"+txt_filter(os.listdir("instaloader_cache"))) as f:
             caption = f.read()
+            print(caption)
         
         if len(resources) >= 1:
             #let user know you downloaded everithing and now uploading
