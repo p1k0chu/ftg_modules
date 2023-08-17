@@ -54,7 +54,7 @@ class InstaLoaderMod(loader.Module):
         if not silent:
             await utils.answer(message, self.strings("processing", message))
         
-        post = instaloader.Post.from_shortcode(self.il.context, text)
+        post = instaloader.Post.from_shortcode(self.il.context, args[0])
         
         #let user know you downloading files
         if not silent:
