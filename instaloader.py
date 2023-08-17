@@ -42,16 +42,13 @@ class InstaLoaderMod(loader.Module):
         
         args = utils.get_args(message)
         
-        if not args:
+        #there should be only one argument
+        if len(args) != 1:
             if not silent:
                 await utils.answer(message, self.strings("args_err", message))
             return
         
-        text = "".join(args)
-        
-        # convert url to shortcode
-        if re.match("http.://", text):
-            text = text.split("/")[4]
+        #TODO url parsing
         
         #let user know you handle command
         if not silent:
