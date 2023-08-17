@@ -40,7 +40,8 @@ class InstaLoaderMod(loader.Module):
         if silent:
             await message.delete()
         
-        text = utils.get_args_raw(message)
+        text = str(utils.get_args_raw(message))
+        logging.warn(f"{text = }")
         
         #there should be only one argument
         if not text:
@@ -51,7 +52,7 @@ class InstaLoaderMod(loader.Module):
         # convert url to shortcode
         if re.match("http.://", text):
             text = text.split("/")[4]
-        logging.debug(text)
+        logging.warn(f"{text = }")
         
         #let user know you handle command
         if not silent:
