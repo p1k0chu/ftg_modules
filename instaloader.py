@@ -3,6 +3,7 @@ import telethon
 import os
 import instaloader
 import re
+import logging
 
 @loader.tds
 class InstaLoaderMod(loader.Module):
@@ -50,7 +51,7 @@ class InstaLoaderMod(loader.Module):
         # convert url to shortcode
         if re.match("http.://", text):
             text = text.split("/")[4]
-        print(text)
+        logging.debug(text)
         
         #let user know you handle command
         if not silent:
