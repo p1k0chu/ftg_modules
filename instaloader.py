@@ -27,7 +27,7 @@ class InstaLoaderMod(loader.Module):
     @loader.ratelimit
     async def instascmd(self, message):
         """.instas <shortcode> - silent version"""
-        await instacmd(self, message, silent = True)
+        await self.instacmd(message, silent = True)
     
     @loader.unrestricted
     @loader.ratelimit
@@ -63,7 +63,7 @@ class InstaLoaderMod(loader.Module):
         self.il.download_post(post, "instaloader_cache")
         #make list of all media files matching my_filer(file_name)
         resources = list(filter(my_filter, ["instaloader_cache/"+i for i in os.listdir("instaloader_cache")]))
-        
+            
         if len(resources) >= 1:
             #let user know you downloaded everithing and now uploading
             #do this instead of deleting message bc user would think it doesn't work 
