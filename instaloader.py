@@ -27,7 +27,7 @@ class InstaLoaderMod(loader.Module):
     @loader.ratelimit
     async def instascmd(self, message):
         """.instas <shortcode> - silent version"""
-        await instacmd(self, message, silent = True)
+        await self.instacmd(message, silent = True)
     
     @loader.unrestricted
     @loader.ratelimit
@@ -70,7 +70,7 @@ class InstaLoaderMod(loader.Module):
             if not silent:
                 await utils.answer(message, self.strings("uploading", message))
             #upload files
-            await self.client.send_file(message.to_id, resources, reply_to=message.reply_to)
+            await self.client.send_file(message.to_id, resources, reply_to=message.reply_to.reply_to_msg_id)
             #delete original message
             if not silent: # if silent = True message deleted already
                 await message.delete()
