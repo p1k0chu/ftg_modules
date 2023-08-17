@@ -62,7 +62,7 @@ class InstaLoaderMod(loader.Module):
         #download files to cache folder
         self.il.download_post(post, "instaloader_cache")
         #make list of all media files matching my_filer(file_name)
-        resources = list(filter(my_filter, ["instaloader_cache/"+i for i in os.listdir("instaloader_cache")]))
+        resources = list(filter(media_filter, ["instaloader_cache/"+i for i in os.listdir("instaloader_cache")]))
         with open("instaloader_cache/"+txt_filter(os.listdir("instaloader_cache"))) as f:
             caption = f.read()
         
