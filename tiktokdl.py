@@ -6,6 +6,7 @@ import io
 from .. import loader, utils
 import telethon
 import urllib.request
+import aiohttp
 
 @loader.tds
 class TikTokdlMod(loader.Module):
@@ -58,11 +59,6 @@ async def save_video(video: Video):
             return o
 
 async def save_slideshow(video: Video):
-    # this filter makes sure the images are padded to all the same size
-    vf = "\"scale=iw*min(1080/iw\,1920/ih):ih*min(1080/iw\,1920/ih)," \
-         "pad=1080:1920:(1080-iw)/2:(1920-ih)/2," \
-         "format=yuv420p\""
-
     for i, image_data in enumerate(video.image_post.images):
         url = image_data.image_url.url_list[-1]
         # this step could probably be done with asyncio, but I didn't want to figure out how
