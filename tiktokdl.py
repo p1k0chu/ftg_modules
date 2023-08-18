@@ -13,9 +13,9 @@ class TikTokdlMod(loader.Module):
     """Download tiktok videos"""
     
     strings = {"name": "TikTokdl",
-               "downloading": "Downloading from TikTok...",
-               "uploading": "Uploading file...",
-               "args_err": "Type URL or reply to a message with only url in it"}
+               "downloading": "<b>Downloading from TikTok...</b>",
+               "uploading": "<b>Uploading file...</b>",
+               "args_err": "<b>Type URL or reply to a message with only url in it</b>"}
     
     async def client_ready(self, client, db):
         self.client = client
