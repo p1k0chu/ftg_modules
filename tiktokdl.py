@@ -41,7 +41,7 @@ class TikTokdlMod(loader.Module):
             if video.image_post:
                 downloaded = await save_slideshow(video)
             else:
-                downloaded = await save_video(video)
+                downloaded = await save_video(video, api)
         
         #let user know we are done downloading
         await utils.answer(message, self.strings("uploading", message))
@@ -51,9 +51,12 @@ class TikTokdlMod(loader.Module):
         #delete original message
         await message.delete()
 
-async def save_video(video: Video):
-    async with aiohttp.ClientSession() as session:
-        async with session.get(video.video.download_addr) as resp:
+async def save_video(video: Video, api: AsyncTikTokAPI):
+    # Carrying over this cookie tricks TikTok into thinking this ClientSession was the Playwright instance
+    # used by the AsyncTikTokAPI instance
+    async with aiohttp.ClientSession(cookies={cookie["name"]: cookie["value"] for cookie in await api.context.cookies() if cookie["name"] == "tt_chain_token"}) as session:
+        # Creating this header tricks TikTok into thinking it made the request itself
+        async with session.get(video.video.download_addr, headers={"referer": "https://www.tiktok.com/"}) as resp:
             o = io.BytesIO(await resp.read())
             o.name = "video.mp4"
             return o
