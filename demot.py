@@ -6,6 +6,7 @@ from datetime import datetime
 from asyncio import sleep
 from .. import loader, utils
 import telethon
+import urllib.request
 import logging
 logger = logging.getLogger(__name__)
 
@@ -17,23 +18,36 @@ async def register(cb):
 @loader.tds
 class DemoterMod(loader.Module):
     """Демотиваторы"""
+    
+    # localization
     strings = {
         "name": "Demoter",
         "args_err": '<b>ТЕКСТА-ТО НЕТ АЛО</b>',
-        "reply_err": '<b>РЕПЛАЙ НА ФОТО ИЛИ СТИКЕР</b>'
+        "reply_err": '<b>РЕПЛАЙ НА ФОТО ИЛИ СТИКЕР</b>',
+        "processing": '<b>Демотивирую...</b>'
     }
+
+    def __init__(self):
+        # download font only once when first .demot command called
+        # this way bot will launch faster
+        # because previosly font was stored in code and it really slower bot startup, this prevented other modules from loading properly
+        # if you can use default ImageFont font and set size, use default font istead of downloading this
+        self.demotfont = None
 
     async def client_ready(self, client, db):
         self.client = client
 
     async def demotcmd(self, message):
-        """.demot <text> - use with reply, demotivator"""
+        """.demot <first line> [& <second line>] - use with reply, demotivator"""
         
-        await message.delete()
+        # that means you can use `.demot text `
+        # or `.demot text & text` to split it in two lines
+        
+        await utils.answer(message, self.strings("processing", message))
         
         text = utils.get_args_raw(message)
         if not text:
-            await utils.answer(self.strings("args_err", message))
+            await utils.answer(message, self.strings("args_err", message))
             return
         if message.is_reply:
             reply = await message.get_reply_message()
@@ -41,12 +55,13 @@ class DemoterMod(loader.Module):
             
             # if message is not picture or sticker
             if isinstance(data, bool):
-                await utils.answer(self.strings("reply_err", message))
+                await utils.answer(message, self.strings("reply_err", message))
                 return
         else:
             await message.edit(self.strings("reply_err", message))
             return
-            
+        
+        #download media from reply
         image = io.BytesIO()
         await self.client.download_media(data, image)
         image = Image.open(image)
@@ -60,6 +75,7 @@ class DemoterMod(loader.Module):
         image.save(fried_io, "JPEG")
         fried_io.seek(0)
         
+        await message.delete()
         #send result picture
         await self.client.send_file(message.to_id, fried_io, reply_to=reply.id)
 
@@ -69,14 +85,18 @@ async def textpic(text):
     temp = ImageDraw.Draw(Image.new("RGB", (0, 0), "red"))
     color = (0, 0, 0, 0)
     
+    # download font only once and store it in variable
+    if self.demotfont == None:
+        self.demotfont = urllib.request.urlopen("https://raw.githubusercontent.com/tolyakulak/ftg_modules/dev/font.ttf").read()
+    
     if "&" in text:
         text = text.split("&", 1)
         utext, dtext = text
         utext, dtext = utext.replace('\n', ' '), dtext.replace('\n', ' ')
         utext = "\n".join(textwrap.wrap(utext.strip(), 65))
         dtext = "\n".join(textwrap.wrap(dtext.strip(), 60))
-        ufont = ImageFont.truetype(size=100)
-        dfont = ImageFont.truetype(size=80)
+        ufont = ImageFont.truetype(io.BytesIO(self.demotfont), size=100)
+        dfont = ImageFont.truetype(io.BytesIO(self.demotfont), size=80)
         uts = temp.multiline_textbbox((0, 0), utext.replace(' ', '\n'), font=ufont)
         uts = (uts[2]-uts[0], uts[3]-uts[1])
         dts = temp.multiline_textbbox((0, 0), dtext.replace(' ', '\n'), font=dfont)
@@ -91,7 +111,7 @@ async def textpic(text):
     else:
         text = text.replace('\n', ' ')
         utext = "\n".join(textwrap.wrap(text, 60))
-        ufont = ImageFont.truetype(io.BytesIO(demotfont), size=100)
+        ufont = ImageFont.truetype(io.BytesIO(self.demotfont), size=100)
         l, t, r, b = temp.multiline_textbbox((0, 0), utext.replace(' ', '\n'), font=ufont)
         x, y = r - l, b - t
         img = Image.new("RGBA", (x, y + 50), color)
