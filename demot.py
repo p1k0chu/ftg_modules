@@ -2,7 +2,7 @@ import io, textwrap
 from PIL import Image, ImageDraw, ImageFont
 from telethon.tl.types import DocumentAttributeFilename
 from uniborg.util import admin_cmd
-from datetime import datetime
+import os
 from asyncio import sleep
 from .. import loader, utils
 import telethon
@@ -24,15 +24,9 @@ class DemoterMod(loader.Module):
         "name": "Demoter",
         "args_err": '<b>ТЕКСТА-ТО НЕТ АЛО</b>',
         "reply_err": '<b>РЕПЛАЙ НА ФОТО ИЛИ СТИКЕР</b>',
-        "processing": '<b>Демотивирую...</b>'
+        "processing": '<b>Демотивирую...</b>',
+        "downloading_font": "<b>Скачиваю шрифт...</b>"
     }
-
-    def __init__(self):
-        # download font only once when first .demot command called
-        # this way bot will launch faster
-        # because previosly font was stored in code and it really slower bot startup, this prevented other modules from loading properly
-        # if you can use default ImageFont font and set size, use default font istead of downloading this
-        self.demotfont = None
 
     async def client_ready(self, client, db):
         self.client = client
@@ -67,7 +61,7 @@ class DemoterMod(loader.Module):
         image = Image.open(image)
         
         #apply demot
-        image = await self.demot(text, image)
+        image = await self.demot(message, text, image)
         
         #convert to jpeg
         fried_io = io.BytesIO()
@@ -81,13 +75,23 @@ class DemoterMod(loader.Module):
 
 
 
-    async def textpic(self, text):
+    async def textpic(self, message, text):
         temp = ImageDraw.Draw(Image.new("RGB", (0, 0), "red"))
         color = (0, 0, 0, 0)
     
-        # download font only once and store it in variable
-        if self.demotfont == None:
-            self.demotfont = urllib.request.urlopen("https://raw.githubusercontent.com/tolyakulak/ftg_modules/dev/font.ttf").read()
+        # download font only once and store it on disk
+        if not os.path.exists("cache"):
+            os.mkdir("cache")
+        if not os.path.exists("cache/font.ttf"):
+            await utils.answer(message, self.strings("downloading_font", message))
+            demotfont = urllib.request.urlopen("https://github.com/tolyakulak/ftg_modules/raw/main/font.ttf").read()
+            with open("cache/font.ttf", "wb") as f:
+                f.write(demotfont)
+            await utils.answer(message, self.strings("processing", message))
+        else:
+            with open("cache/font.ttf", "rb") as f:
+                demotfont = f.read()
+        
     
         if "&" in text:
             text = text.split("&", 1)
@@ -95,8 +99,8 @@ class DemoterMod(loader.Module):
             utext, dtext = utext.replace('\n', ' '), dtext.replace('\n', ' ')
             utext = "\n".join(textwrap.wrap(utext.strip(), 65))
             dtext = "\n".join(textwrap.wrap(dtext.strip(), 60))
-            ufont = ImageFont.truetype(io.BytesIO(self.demotfont), size=100)
-            dfont = ImageFont.truetype(io.BytesIO(self.demotfont), size=80)
+            ufont = ImageFont.truetype(io.BytesIO(demotfont), size=100)
+            dfont = ImageFont.truetype(io.BytesIO(demotfont), size=80)
             uts = temp.multiline_textbbox((0, 0), utext.replace(' ', '\n'), font=ufont)
             uts = (uts[2]-uts[0], uts[3]-uts[1])
             dts = temp.multiline_textbbox((0, 0), dtext.replace(' ', '\n'), font=dfont)
@@ -111,7 +115,7 @@ class DemoterMod(loader.Module):
         else:
             text = text.replace('\n', ' ')
             utext = "\n".join(textwrap.wrap(text, 60))
-            ufont = ImageFont.truetype(io.BytesIO(self.demotfont), size=100)
+            ufont = ImageFont.truetype(io.BytesIO(demotfont), size=100)
             l, t, r, b = temp.multiline_textbbox((0, 0), utext.replace(' ', '\n'), font=ufont)
             x, y = r - l, b - t
             img = Image.new("RGBA", (x, y + 50), color)
@@ -122,9 +126,9 @@ class DemoterMod(loader.Module):
         text.paste(img, ((650 - img.width) // 2, 0), img)
         return text
 
-    async def demot(self, text, image):
+    async def demot(self, message, text, image):
         demot = await self.template(image)
-        vator = await self.textpic(text)
+        vator = await self.textpic(message, text)
         demotivator = Image.new("RGB", (650, 470 + vator.height), "black")
         demotivator.paste(demot, (0, 0))
         demotivator.paste(vator, (0, 460))
