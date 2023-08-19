@@ -14,7 +14,8 @@ class InstaLoaderMod(loader.Module):
                 "downloading": "<b>Downloading from Instagram...</b>",
                 "loader_not_loading": "Something is broken. Pls contact author and send him link to the Instagram post caused this problem (or fix it yourself xd)",
                 "processing": "<b>Processing...</b>",
-                "uploading": "<b>Uploading files...</b>"}
+                "uploading": "<b>Uploading files...</b>",
+                "caption": "<a href=\"https://www.instagram.com/p/{}/\">Ссылка на пост Instagram</a>"}
     
     def __init__(self):
         self.il = instaloader.Instaloader(download_video_thumbnails = False,
@@ -73,9 +74,9 @@ class InstaLoaderMod(loader.Module):
                 await utils.answer(message, self.strings("uploading", message))
             #upload files
             if message.reply_to:
-                await self.client.send_file(message.to_id, resources, reply_to=message.reply_to.reply_to_msg_id, caption=text)
+                await self.client.send_file(message.to_id, resources, reply_to=message.reply_to.reply_to_msg_id, caption=self.strings("caption", message).format(text))
             else:
-                await self.client.send_file(message.to_id, resources, caption=text)
+                await self.client.send_file(message.to_id, resources, caption=self.strings("caption", message).format(text))
             #delete original message
             if not silent: # if silent = True message deleted already
                 await message.delete()
