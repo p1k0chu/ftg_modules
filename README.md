@@ -7,6 +7,8 @@ Choose the module you want, click on the file name, click the "Raw" button. Copy
 <h3>instaloader.py</h3>
 <p>Download posts from Instagram</p>
 <pre>.insta &lt;shortcode&gt; or &lt;url&gt; - download post by shortcode</pre>
+<h4>Requirements</h4>
+<p>pip instal instaloader</p>
 <h3>lmgtfy.py</h3>
 <p>Let Me Google That For You.<br>
 Send google link to troll people</p>
@@ -24,6 +26,8 @@ Send google link to troll people</p>
 <h3>tiktokdl.py</h3>
 <p>Download videos (and slideshow) from TikTok</p>
 <pre>.ttdl &lt;url&gt; or &lt;reply&gt; - download tiktok video from url</pre>
+<h4>Requirements</h4>
+<p><a href="https://github.com/Russell-Newton/TikTokPy#installation">Follow this instructions</a></p>
 <h3>demot.py</h3>
 <p>Demotivator.</p>
 <pre>.demot &lt;first line&gt; [& &lt;second line&gt;] - always use with reply to a image or sticker</pre>
