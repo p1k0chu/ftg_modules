@@ -62,26 +62,17 @@ async def save_video(video: Video, api: AsyncTikTokAPI):
             return o
 
 async def save_slideshow(video: Video):
+    ret = []
     for i, image_data in enumerate(video.image_post.images):
         url = image_data.image_url.url_list[-1]
-        # this step could probably be done with asyncio, but I didn't want to figure out how
-        urllib.request.urlretrieve(url, os.path.join("tiktok_cache", f"temp_{video.id}_{i:02}.jpg"))
+        
+        # previous way of downloading, saving as file
+        #urllib.request.urlretrieve(url, os.path.join("tiktok_cache", f"temp_{video.id}_{i:02}.jpg"))
+        
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, headers={"referer": "https://www.tiktok.com/"}) as resp:
+                o = io.BytesIO(await resp.read())
+                o.name = f"{video.id}_{i:02}.jpg"
+                ret.append(o)
     
-    ret = []
-    for i in os.listdir("tiktok_cache"):
-        with open(os.path.join("tiktok_cache", i), "rb") as f:
-            o = io.BytesIO(f.read())
-        o.name = f"image{len(ret)}.jpg"
-        ret.append(o)
-    
-    await clean_files()
-
     return ret
-
-async def clean_files():
-    #linux
-    if os.name == "posix":
-        return os.system("rm -rf tiktok_cache/*")
-    #windows
-    elif os.name == "nt":
-        return os.system(r"del /Q .\tiktok_cache\*")
