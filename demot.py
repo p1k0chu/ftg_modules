@@ -81,46 +81,46 @@ class DemoterMod(loader.Module):
 
 
 
-async def textpic(text):
-    temp = ImageDraw.Draw(Image.new("RGB", (0, 0), "red"))
-    color = (0, 0, 0, 0)
+    async def textpic(self, text):
+        temp = ImageDraw.Draw(Image.new("RGB", (0, 0), "red"))
+        color = (0, 0, 0, 0)
     
-    # download font only once and store it in variable
-    if self.demotfont == None:
-        self.demotfont = urllib.request.urlopen("https://raw.githubusercontent.com/tolyakulak/ftg_modules/dev/font.ttf").read()
+        # download font only once and store it in variable
+        if self.demotfont == None:
+            self.demotfont = urllib.request.urlopen("https://raw.githubusercontent.com/tolyakulak/ftg_modules/dev/font.ttf").read()
     
-    if "&" in text:
-        text = text.split("&", 1)
-        utext, dtext = text
-        utext, dtext = utext.replace('\n', ' '), dtext.replace('\n', ' ')
-        utext = "\n".join(textwrap.wrap(utext.strip(), 65))
-        dtext = "\n".join(textwrap.wrap(dtext.strip(), 60))
-        ufont = ImageFont.truetype(io.BytesIO(self.demotfont), size=100)
-        dfont = ImageFont.truetype(io.BytesIO(self.demotfont), size=80)
-        uts = temp.multiline_textbbox((0, 0), utext.replace(' ', '\n'), font=ufont)
-        uts = (uts[2]-uts[0], uts[3]-uts[1])
-        dts = temp.multiline_textbbox((0, 0), dtext.replace(' ', '\n'), font=dfont)
-        dts = (dts[2]-dts[0], dts[3]-dts[1])
-        y = uts[1] + 30 + dts[1]
-        x = max(uts[0], dts[0])
-        #print(x, uts, dts)
-        img = Image.new("RGBA", (x, y + 10), color)
-        draw = ImageDraw.Draw(img)
-        draw.multiline_text(((x - uts[0]) / 2, -10), utext.replace(' ', '\n'), fill="white", font=ufont, align="center")
-        draw.multiline_text(((x - dts[0]) / 2, uts[1]+5), dtext.replace(' ', '\n'), fill="white", font=dfont, align="center")
-    else:
-        text = text.replace('\n', ' ')
-        utext = "\n".join(textwrap.wrap(text, 60))
-        ufont = ImageFont.truetype(io.BytesIO(self.demotfont), size=100)
-        l, t, r, b = temp.multiline_textbbox((0, 0), utext.replace(' ', '\n'), font=ufont)
-        x, y = r - l, b - t
-        img = Image.new("RGBA", (x, y + 50), color)
-        draw = ImageDraw.Draw(img)  
-        draw.multiline_text((0, 0), utext.replace(' ', '\n'), fill="white", font=ufont, align="center")
-    img.thumbnail((550, 9 ** 9), Image.LANCZOS)
-    text = Image.new("RGBA", (650, img.height), (0, 0, 0, 0))
-    text.paste(img, ((650 - img.width) // 2, 0), img)
-    return text
+        if "&" in text:
+            text = text.split("&", 1)
+            utext, dtext = text
+            utext, dtext = utext.replace('\n', ' '), dtext.replace('\n', ' ')
+            utext = "\n".join(textwrap.wrap(utext.strip(), 65))
+            dtext = "\n".join(textwrap.wrap(dtext.strip(), 60))
+            ufont = ImageFont.truetype(io.BytesIO(self.demotfont), size=100)
+            dfont = ImageFont.truetype(io.BytesIO(self.demotfont), size=80)
+            uts = temp.multiline_textbbox((0, 0), utext.replace(' ', '\n'), font=ufont)
+            uts = (uts[2]-uts[0], uts[3]-uts[1])
+            dts = temp.multiline_textbbox((0, 0), dtext.replace(' ', '\n'), font=dfont)
+            dts = (dts[2]-dts[0], dts[3]-dts[1])
+            y = uts[1] + 30 + dts[1]
+            x = max(uts[0], dts[0])
+            #print(x, uts, dts)
+            img = Image.new("RGBA", (x, y + 10), color)
+            draw = ImageDraw.Draw(img)
+            draw.multiline_text(((x - uts[0]) / 2, -10), utext.replace(' ', '\n'), fill="white", font=ufont, align="center")
+            draw.multiline_text(((x - dts[0]) / 2, uts[1]+5), dtext.replace(' ', '\n'), fill="white", font=dfont, align="center")
+        else:
+            text = text.replace('\n', ' ')
+            utext = "\n".join(textwrap.wrap(text, 60))
+            ufont = ImageFont.truetype(io.BytesIO(self.demotfont), size=100)
+            l, t, r, b = temp.multiline_textbbox((0, 0), utext.replace(' ', '\n'), font=ufont)
+            x, y = r - l, b - t
+            img = Image.new("RGBA", (x, y + 50), color)
+            draw = ImageDraw.Draw(img)  
+            draw.multiline_text((0, 0), utext.replace(' ', '\n'), fill="white", font=ufont, align="center")
+        img.thumbnail((550, 9 ** 9), Image.LANCZOS)
+        text = Image.new("RGBA", (650, img.height), (0, 0, 0, 0))
+        text.paste(img, ((650 - img.width) // 2, 0), img)
+        return text
 
 
 async def template(image):
