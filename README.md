@@ -8,7 +8,7 @@ Choose the module you want, click on the file name, click the "Raw" button. Copy
 <p>Download posts from Instagram</p>
 <pre>.insta &lt;shortcode&gt; or &lt;url&gt; - download post by shortcode</pre>
 <h4>Requirements</h4>
-<p>pip instal instaloader</p>
+<pre>pip instal instaloader</pre>
 <h3>lmgtfy.py</h3>
 <p>Let Me Google That For You.<br>
 Send google link to troll people</p>
