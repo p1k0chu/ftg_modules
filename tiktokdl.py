@@ -5,6 +5,7 @@ import os
 import io
 from .. import loader, utils
 import telethon
+import aiofiles
 import urllib.request
 import aiohttp
 
@@ -39,14 +40,17 @@ class TikTokdlMod(loader.Module):
         async with AsyncTikTokAPI() as api:
             video = await api.video(text)
             if video.image_post:
-                downloaded = await save_slideshow(video)
+                downloaded, music = await save_slideshow(video)
             else:
                 downloaded = await save_video(video, api)
+                music = None
         
         #let user know we are done downloading
         await utils.answer(message, self.strings("uploading", message))
         #upload to telegram chat
         await self.client.send_file(message.to_id, downloaded)
+        if music:
+            await self.client.send_file(message.to_id, music)
         
         #delete original message
         await message.delete()
@@ -75,4 +79,18 @@ async def save_slideshow(video: Video):
                 o.name = f"{video.id}_{i:02}.jpg"
                 ret.append(o)
     
-    return ret
+    async with aiohttp.ClientSession() as session:
+        async with session.get(video.music.play_url,headers={"referer": "https://www.tiktok.com/"}) as resp:
+                async with aiofiles.open("tiktok_cache/music.mp3", "wb") as f:
+                    await f.write(await resp.read())
+                music = "tiktok_cache/music.mp3"
+    
+    return ret, music
+
+async def clean_files():
+    #linux
+    if os.name == "posix":
+        return os.system("rm -rf tiktok_cache/*")
+    #windows
+    elif os.name == "nt":
+        return os.system(r"del /Q .\tiktok_cache\*")
