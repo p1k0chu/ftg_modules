@@ -51,14 +51,14 @@ class DemoterMod(loader.Module):
             return
         if message.is_reply:
             reply = await message.get_reply_message()
-            data = await check_media(reply)
+            data = await self.check_media(reply)
             
             # if message is not picture or sticker
             if isinstance(data, bool):
                 await utils.answer(message, self.strings("reply_err", message))
                 return
         else:
-            await message.edit(self.strings("reply_err", message))
+            await utils.answer(message, self.strings("reply_err", message))
             return
         
         #download media from reply
@@ -67,7 +67,7 @@ class DemoterMod(loader.Module):
         image = Image.open(image)
         
         #apply demot
-        image = await demot(text, image)
+        image = await self.demot(text, image)
         
         #convert to jpeg
         fried_io = io.BytesIO()
@@ -122,41 +122,38 @@ class DemoterMod(loader.Module):
         text.paste(img, ((650 - img.width) // 2, 0), img)
         return text
 
+    async def demot(self, text, image):
+        demot = await self.template(image)
+        vator = await self.textpic(text)
+        demotivator = Image.new("RGB", (650, 470 + vator.height), "black")
+        demotivator.paste(demot, (0, 0))
+        demotivator.paste(vator, (0, 460))
+        return demotivator
 
-async def template(image):
-    image = image.resize((547, 397))
-    demo = Image.new("RGB", (650, 500), 'black')
-    draw = ImageDraw.Draw(demo)
-    draw.rectangle((48, 48, 602, 452), fill=None, outline='white', width=2)
-    demo.paste(image, (52, 52))
-    return demo
+    async def template(self, image):
+        image = image.resize((547, 397))
+        demo = Image.new("RGB", (650, 500), 'black')
+        draw = ImageDraw.Draw(demo)
+        draw.rectangle((48, 48, 602, 452), fill=None, outline='white', width=2)
+        demo.paste(image, (52, 52))
+        return demo
 
-
-async def demot(text, image):
-    demot = await template(image)
-    vator = await textpic(text)
-    demotivator = Image.new("RGB", (650, 470 + vator.height), "black")
-    demotivator.paste(demot, (0, 0))
-    demotivator.paste(vator, (0, 460))
-    return demotivator
-
-
-async def check_media(reply):
-    if reply and reply.media:
-        if reply.photo:
-            data = reply.photo
-        elif reply.document:
-            if DocumentAttributeFilename(file_name='AnimatedSticker.tgs') in reply.media.document.attributes:
+    async def check_media(self, reply):
+        if reply and reply.media:
+            if reply.photo:
+                data = reply.photo
+            elif reply.document:
+                if DocumentAttributeFilename(file_name='AnimatedSticker.tgs') in reply.media.document.attributes:
+                    return False
+                if reply.gif or reply.video or reply.audio or reply.voice:
+                    return False
+                data = reply.media.document
+            else:
                 return False
-            if reply.gif or reply.video or reply.audio or reply.voice:
-                return False
-            data = reply.media.document
         else:
             return False
-    else:
-        return False
 
-    if not data or data is None:
-        return False
-    else:
-        return data
+        if not data or data is None:
+            return False
+        else:
+            return data
