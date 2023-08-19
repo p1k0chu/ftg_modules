@@ -6,7 +6,7 @@ import re
 
 @loader.tds
 class InstaLoaderMod(loader.Module):
-    """Downloads posts from instagram using InstaLoader. Author is @p1k0chu"""
+    """Downloads posts from instagram using InstaLoader. Author is t.me/p1k0chu"""
     
     #you can do localization for yourself if you want to
     strings = {"name": "InstaLoader",

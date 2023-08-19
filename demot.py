@@ -3,7 +3,6 @@ from PIL import Image, ImageDraw, ImageFont
 from telethon.tl.types import DocumentAttributeFilename
 from uniborg.util import admin_cmd
 import os
-from asyncio import sleep
 from .. import loader, utils
 import telethon
 import urllib.request
