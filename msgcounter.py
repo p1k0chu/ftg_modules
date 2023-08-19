@@ -24,10 +24,6 @@ class MsgCountMod(loader.Module):
         if not reply:
             await utils.answer(message, self.strings("no_reply", message))
         
-        c = 0
-        async for msg in message.client.iter_messages(
-                entity=message.to_id):
-            if msg.from_id == reply.from_id:
-                c += 1
+        c = len(await message.client.get_messages(entity=message.to_id, from_user=reply.from_id))
         
         await utils.answer(message, self.strings("output", message).format(c))
