@@ -26,7 +26,6 @@ class DemoterMod(loader.Module):
         "processing": '<b>Демотивирую...</b>',
         "downloading_font": "<b>Скачиваю шрифт...</b>"
     }
-
     async def client_ready(self, client, db):
         self.client = client
 
@@ -73,7 +72,6 @@ class DemoterMod(loader.Module):
         await self.client.send_file(message.to_id, fried_io, reply_to=reply.id)
 
 
-
     async def textpic(self, message, text):
         temp = ImageDraw.Draw(Image.new("RGB", (0, 0), "red"))
         color = (0, 0, 0, 0)
@@ -90,7 +88,6 @@ class DemoterMod(loader.Module):
         else:
             with open("cache/font.ttf", "rb") as f:
                 demotfont = f.read()
-        
     
         if "&" in text:
             text = text.split("&", 1)
