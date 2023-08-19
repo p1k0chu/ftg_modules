@@ -48,9 +48,14 @@ class TikTokdlMod(loader.Module):
         #let user know we are done downloading
         await utils.answer(message, self.strings("uploading", message))
         #upload to telegram chat
-        await self.client.send_file(message.to_id, downloaded, caption=text)
-        if music:
-            await self.client.send_file(message.to_id, music)
+        if message.is_reply:
+            await self.client.send_file(message.to_id, downloaded, caption=text, reply_to=message.reply_to.reply_to_msg_id)
+            if music:
+                await self.client.send_file(message.to_id, music)
+        else:
+            await self.client.send_file(message.to_id, downloaded, caption=text)
+            if music:
+                await self.client.send_file(message.to_id, music)
         
         #delete original message
         await message.delete()
