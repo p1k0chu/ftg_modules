@@ -48,12 +48,14 @@ class TikTokdlMod(loader.Module):
         #let user know we are done downloading
         await utils.answer(message, self.strings("uploading", message))
         #upload to telegram chat
-        await self.client.send_file(message.to_id, downloaded)
+        await self.client.send_file(message.to_id, downloaded, caption=text)
         if music:
             await self.client.send_file(message.to_id, music)
         
         #delete original message
         await message.delete()
+        
+        await clean_files()
 
 async def save_video(video: Video, api: AsyncTikTokAPI):
     # Carrying over this cookie tricks TikTok into thinking this ClientSession was the Playwright instance
@@ -81,9 +83,9 @@ async def save_slideshow(video: Video):
     
     async with aiohttp.ClientSession() as session:
         async with session.get(video.music.play_url,headers={"referer": "https://www.tiktok.com/"}) as resp:
-                async with aiofiles.open("tiktok_cache/music.mp3", "wb") as f:
+                async with aiofiles.open(f"tiktok_cache/music_{video.id}.mp3", "wb") as f:
                     await f.write(await resp.read())
-                music = "tiktok_cache/music.mp3"
+                music = f"tiktok_cache/music_{video.id}.mp3"
     
     return ret, music
 
