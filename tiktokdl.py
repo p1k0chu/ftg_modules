@@ -37,6 +37,13 @@ class TikTokdlMod(loader.Module):
         # notify user we are here ♥
         await utils.answer(message, self.strings("downloading", message))
         
+        # convert short url to full url
+        if not "@" in text:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(text, headers=\
+                        {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}) as resp:
+                    text = str(resp.url).split("?")[0]
+        
         async with AsyncTikTokAPI() as api:
             video = await api.video(text)
             if video.image_post:
@@ -49,11 +56,11 @@ class TikTokdlMod(loader.Module):
         await utils.answer(message, self.strings("uploading", message))
         #upload to telegram chat
         if message.is_reply:
-            await self.client.send_file(message.to_id, downloaded, caption=text, reply_to=message.reply_to.reply_to_msg_id)
+            await self.client.send_file(message.to_id, downloaded, caption=utils.escape_html(text), reply_to=message.reply_to.reply_to_msg_id)
             if music:
                 await self.client.send_file(message.to_id, music)
         else:
-            await self.client.send_file(message.to_id, downloaded, caption=text)
+            await self.client.send_file(message.to_id, downloaded, caption=utils.escape_html(text))
             if music:
                 await self.client.send_file(message.to_id, music)
         
@@ -67,10 +74,12 @@ async def save_video(video: Video, api: AsyncTikTokAPI):
     # used by the AsyncTikTokAPI instance
     async with aiohttp.ClientSession(cookies={cookie["name"]: cookie["value"] for cookie in await api.context.cookies() if cookie["name"] == "tt_chain_token"}) as session:
         # Creating this header tricks TikTok into thinking it made the request itself
-        async with session.get(video.video.download_addr, headers={"referer": "https://www.tiktok.com/"}) as resp:
-            o = io.BytesIO(await resp.read())
-            o.name = "video.mp4"
-            return o
+        async with session.get(video.video.download_addr, headers={
+                "referer": "https://www.tiktok.com/",
+                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}) as resp:
+            async with aiofiles.open(f"tiktok_cache/video_{video.id}.mp4", "wb") as f:
+                await f.write(await resp.read())
+            return f"tiktok_cache/video_{video.id}.mp4"
 
 async def save_slideshow(video: Video):
     ret = []
@@ -82,15 +91,18 @@ async def save_slideshow(video: Video):
         
         async with aiohttp.ClientSession() as session:
             async with session.get(url, headers={"referer": "https://www.tiktok.com/"}) as resp:
-                o = io.BytesIO(await resp.read())
-                o.name = f"{video.id}_{i:02}.jpg"
-                ret.append(o)
+                async with aiofiles.open(f"{video.id}_{i:02}.jpg", "wb") as f:
+                    await f.write(await resp.read())
+                
+                ret.append(f"{video.id}_{i:02}.jpg")
     
     async with aiohttp.ClientSession() as session:
-        async with session.get(video.music.play_url,headers={"referer": "https://www.tiktok.com/"}) as resp:
-                async with aiofiles.open(f"tiktok_cache/music_{video.id}.mp3", "wb") as f:
-                    await f.write(await resp.read())
-                music = f"tiktok_cache/music_{video.id}.mp3"
+        async with session.get(video.music.play_url,headers={
+                "referer": "https://www.tiktok.com/",
+                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}) as resp:
+            async with aiofiles.open(f"tiktok_cache/music_{video.id}.mp3", "wb") as f:
+                await f.write(await resp.read())
+            music = f"tiktok_cache/music_{video.id}.mp3"
     
     return ret, music
 
