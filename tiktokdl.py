@@ -91,10 +91,10 @@ async def save_slideshow(video: Video):
         
         async with aiohttp.ClientSession() as session:
             async with session.get(url, headers={"referer": "https://www.tiktok.com/"}) as resp:
-                async with aiofiles.open(f"{video.id}_{i:02}.jpg", "wb") as f:
+                async with aiofiles.open(f"tiktok_cache/{video.id}_{i:02}.jpg", "wb") as f:
                     await f.write(await resp.read())
                 
-                ret.append(f"{video.id}_{i:02}.jpg")
+                ret.append(f"tiktok_cache/{video.id}_{i:02}.jpg")
     
     async with aiohttp.ClientSession() as session:
         async with session.get(video.music.play_url,headers={
