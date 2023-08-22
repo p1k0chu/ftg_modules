@@ -27,8 +27,8 @@ Send google link to troll people</p>
 <p>Download videos (and slideshow) from TikTok</p>
 <pre>.ttdl &lt;url&gt; or &lt;reply&gt; - download tiktok video from url</pre>
 <h4>Requirements</h4>
-<p><a href="https://github.com/Russell-Newton/TikTokPy#installation">Follow this instructions to install TikTokPy</a></p>
-<pre>pip install aiofiles</pre>
+<pre>pip install aiofiles tiktokapipy
+python -m playwright install</pre>
 <h3>demot.py</h3>
 <p>Demotivator.</p>
 <pre>.demot &lt;first line&gt; [& &lt;second line&gt;] - always use with reply to a image or sticker</pre>
