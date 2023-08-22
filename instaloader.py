@@ -43,8 +43,10 @@ class InstaLoaderMod(loader.Module):
         
         #there should be only one argument
         if not text:
-            if not silent:
-                await utils.answer(message, self.strings("args_err", message))
+            text = (await message.get_reply_message()).message
+        
+        if not text:
+            await utils.answer(message, self.strings("args_err", message))
             return
         
         if re.match("http.://", text):
