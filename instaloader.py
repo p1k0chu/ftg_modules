@@ -76,9 +76,9 @@ class InstaLoaderMod(loader.Module):
                 await utils.answer(message, self.strings("uploading", message))
             #upload files
             if message.reply_to:
-                await self.client.send_file(message.to_id, resources, reply_to=message.reply_to.reply_to_msg_id, caption=self.strings("caption", message).format(text))
+                await self.client.send_file(message.to_id if message.out else message.from_id, resources, reply_to=message.reply_to.reply_to_msg_id, caption=self.strings("caption", message).format(text))
             else:
-                await self.client.send_file(message.to_id, resources, caption=self.strings("caption", message).format(text))
+                await self.client.send_file(message.to_id if message.out else message.from_id, resources, caption=self.strings("caption", message).format(text))
             #delete original message
             if not silent: # if silent = True message deleted already
                 await message.delete()
